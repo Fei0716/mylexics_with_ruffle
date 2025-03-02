@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyLexics with Ruffle</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+
+<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+<script>
+    window.RufflePlayer = window.RufflePlayer || {};
+    window.addEventListener("load", () => {
+        document.documentElement.style.setProperty("--logo-display", "none");
+
+        const ruffle = window.RufflePlayer.newest();
+        const player = ruffle.createPlayer();
+        // Enable more verbose logging
+        player.config = {
+            allowScriptAccess: true, // Make sure this is boolean true, not string "true"
+            autoplay: "on",
+            backgroundColor: "#FFFFFF",
+            logLevel: "debug", // Increase log level to get more details
+            allowFullscreen: true,
+        };
+        player.style.width = "100vw";
+        player.style.height = "100vh";
+        const container = document.getElementById("container");
+        container.appendChild(player);
+
+        console.log("Ruffle player created and added to DOM");
+
+        // Try both methods to maximize chances of catching the event
+
+        // Method 1: Legacy API
+        player.onFSCommand = (command, args) => {
+            console.log(`Legacy FSCommand handler received: ${command} with args: ${args}`);
+            if (command === "quit") {
+                console.log("Quit command handled by legacy handler!");
+                window.close();
+                alert("Quit command received!");
+            }
+        };
+        console.log("Legacy FSCommand handler registered");
+
+        // Load the SWF with a delay to ensure handlers are registered
+        setTimeout(() => {
+            console.log("Loading SWF file...");
+            player.load("main_mylexics.swf");
+        }, 200);
+
+        // Listen for global error events
+        window.addEventListener("error", (e) => {
+            console.error("Global error:", e);
+        });
+    });
+</script>
+</body>
+</html>
